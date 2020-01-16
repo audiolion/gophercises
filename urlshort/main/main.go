@@ -1,13 +1,21 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/audiolion/gophercises/urlshort"
 )
 
 func main() {
+	var (
+		yamlFilename = flag.String("yaml", "urls.yaml", "yaml file of redirects")
+		jsonFilename = flag.String("json", "urls.json", "json file of redirects")
+	)
+	flag.Parse()
+
 	mux := defaultMux()
 
 	// Build the MapHandler using the mux as the fallback
@@ -17,32 +25,10 @@ func main() {
 	}
 	mapHandler := urlshort.MapHandler(pathsToUrls, mux)
 
-	// Build the YAMLHandler using the mapHandler as the
-	// fallback
-	yaml := `
-- path: /urlshort
-  url: https://github.com/gophercises/urlshort
-- path: /urlshort-final
-  url: https://github.com/gophercises/urlshort/tree/solution
-`
-	yamlHandler, err := urlshort.YAMLHandler([]byte(yaml), mapHandler)
-	if err != nil {
-		panic(err)
-	}
+	yamlHandler := makeHandler(yamlFilename, urlshort.YAMLHandler, mapHandler)
 
-	json := `
-[
-	{
-		"path": "/urlshort2",
-		"url": "https://github.com/gophercises/urlshort"
-	},
-	{
-		"path": "/urlshort-final2",
-		"url": "https://github.com/gophercises/urlshort/tree/solution"
-	}
-]
-`
-	jsonHandler, err := urlshort.JSONHandler([]byte(json), yamlHandler)
+	jsonHandler := makeHandler(jsonFilename, urlshort.JSONHandler, yamlHandler)
+
 	fmt.Println("Starting the server on :8080")
 	http.ListenAndServe(":8080", jsonHandler)
 }
@@ -55,4 +41,21 @@ func defaultMux() *http.ServeMux {
 
 func hello(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Hello, world!")
+}
+
+func readFile(filename string) []byte {
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		panic(err)
+	}
+	return data
+}
+
+func makeHandler(filename *string, createHandler urlshort.Handler, fallback http.HandlerFunc) http.HandlerFunc {
+	data := readFile(*filename)
+	handler, err := createHandler(data, fallback)
+	if err != nil {
+		panic(err)
+	}
+	return handler
 }

@@ -29,6 +29,9 @@ func MapHandler(pathsToUrls map[string]string, fallback http.Handler) http.Handl
 	}
 }
 
+// Handler is an interface to a handler function
+type Handler func([]byte, http.Handler) (http.HandlerFunc, error)
+
 // YAMLHandler will parse the provided YAML and then return
 // an http.HandlerFunc (which also implements http.Handler)
 // that will attempt to map any paths to their corresponding
