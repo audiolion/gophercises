@@ -1,6 +1,7 @@
 package urlshort
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -48,12 +49,30 @@ func YAMLHandler(yml []byte, fallback http.Handler) (http.HandlerFunc, error) {
 	var routes []redirect
 	err := yaml.Unmarshal(yml, &routes)
 	if err != nil {
-		fmt.Printf("cannot unmarshal data: %v", err)
+		fmt.Printf("cannot unmarshal yaml data: %v", err)
 		return nil, err
 	}
+	pathsToUrls := buildPathMap(routes)
+	return MapHandler(pathsToUrls, fallback), nil
+}
+
+// JSONHandler will parse the provided JSON and then return
+// an http.HandlerFunc that will attempt to map any paths to
+// their corresponding URL.
+func JSONHandler(jsonBlob []byte, fallback http.Handler) (http.HandlerFunc, error) {
+	var routes []redirect
+	err := json.Unmarshal(jsonBlob, &routes)
+	if err != nil {
+		fmt.Printf("cannot unmarshal json data: %v", err)
+	}
+	pathsToUrls := buildPathMap(routes)
+	return MapHandler(pathsToUrls, fallback), nil
+}
+
+func buildPathMap(routes []redirect) map[string]string {
 	pathsToUrls := make(map[string]string)
 	for _, r := range routes {
 		pathsToUrls[r.Path] = r.URL
 	}
-	return MapHandler(pathsToUrls, fallback), nil
+	return pathsToUrls
 }

@@ -29,8 +29,22 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	json := `
+[
+	{
+		"path": "/urlshort2",
+		"url": "https://github.com/gophercises/urlshort"
+	},
+	{
+		"path": "/urlshort-final2",
+		"url": "https://github.com/gophercises/urlshort/tree/solution"
+	}
+]
+`
+	jsonHandler, err := urlshort.JSONHandler([]byte(json), yamlHandler)
 	fmt.Println("Starting the server on :8080")
-	http.ListenAndServe(":8080", yamlHandler)
+	http.ListenAndServe(":8080", jsonHandler)
 }
 
 func defaultMux() *http.ServeMux {
