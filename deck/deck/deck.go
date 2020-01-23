@@ -84,13 +84,13 @@ func (r Rank) String() string {
 
 // Card represents a normal playing card with a suit, rank, and color
 type Card struct {
-	suit  Suit
-	rank  Rank
-	color Color
+	Suit  Suit
+	Rank  Rank
+	Color Color
 }
 
 func (c Card) String() string {
-	return fmt.Sprintf("%s of %s", c.rank, c.suit)
+	return fmt.Sprintf("%s of %s", c.Rank, c.Suit)
 }
 
 // New creates a new deck
@@ -111,9 +111,9 @@ func createDeck() []Card {
 	for _, s := range suits {
 		for _, r := range ranks {
 			deck = append(deck, Card{
-				suit:  s,
-				rank:  r,
-				color: suitToColor[s],
+				Suit:  s,
+				Rank:  r,
+				Color: suitToColor[s],
 			})
 		}
 	}
@@ -164,14 +164,14 @@ func NewOrder(deck []Card) func(i, j int) bool {
 }
 
 func absRank(c Card) int {
-	return int(c.rank) * int(suitToValue[c.suit])
+	return int(c.Rank) * int(suitToValue[c.Suit])
 }
 
 // AddJokers adds n jokers to the end of the deck
 func AddJokers(n uint) func(deck []Card) []Card {
 	return func(deck []Card) []Card {
 		for i := uint(0); i < n; i++ {
-			deck = append(deck, Card{rank: Joker, color: "", suit: ""})
+			deck = append(deck, Card{Rank: Joker, Color: "", Suit: ""})
 		}
 		return deck
 	}

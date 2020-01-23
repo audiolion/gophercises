@@ -7,9 +7,9 @@ import (
 
 func TestCard(t *testing.T) {
 	card := Card{
-		suit:  Spades,
-		color: Black,
-		rank:  Ace,
+		Suit:  Spades,
+		Color: Black,
+		Rank:  Ace,
 	}
 
 	got := card.String()
@@ -46,7 +46,7 @@ func TestNew(t *testing.T) {
 		for _, tt := range deckSuitRangesTest {
 			for i := tt.start; i < tt.end; i++ {
 				t.Run(tt.desc, func(t *testing.T) {
-					got := deck[i].suit
+					got := deck[i].Suit
 					if got != tt.want {
 						t.Errorf("%#v got %q want %q", deck[i], got, tt.want)
 					}
@@ -58,7 +58,7 @@ func TestNew(t *testing.T) {
 	t.Run("make a new deck that is shuffled", func(t *testing.T) {
 		deck := New(Shuffle)
 
-		if deck[0].suit == Spades && deck[0].rank == Ace {
+		if deck[0].Suit == Spades && deck[0].Rank == Ace {
 			t.Errorf("expected new deck to be shuffled")
 		}
 	})
@@ -67,21 +67,21 @@ func TestNew(t *testing.T) {
 		deck := New(AddJokers(3))
 
 		for _, c := range deck[len(deck)-3:] {
-			if c.rank != Joker {
-				t.Errorf("got %q want %q", c.rank, Joker)
+			if c.Rank != Joker {
+				t.Errorf("got %q want %q", c.Rank, Joker)
 			}
 		}
 	})
 
 	t.Run("custom filter of all twos and threes from a deck", func(t *testing.T) {
 		filterTwosThrees := func(c Card) bool {
-			return c.rank == Two || c.rank == Three
+			return c.Rank == Two || c.Rank == Three
 		}
 
 		deck := New(Filter(filterTwosThrees))
 
 		for _, c := range deck {
-			if c.rank == Two || c.rank == Three {
+			if c.Rank == Two || c.Rank == Three {
 				t.Errorf("expected no twos or threes in deck")
 			}
 		}
@@ -106,13 +106,13 @@ func TestSort(t *testing.T) {
 
 		compare := func(cards []Card) func(i, j int) bool {
 			return func(i, j int) bool {
-				return cards[i].rank > cards[j].rank
+				return cards[i].Rank > cards[j].Rank
 			}
 		}
 
 		deck = Sort(compare)(deck)
 
-		got := deck[0].rank
+		got := deck[0].Rank
 		want := King
 		if got != want {
 			t.Errorf("got %q expected %q", got, want)
@@ -126,12 +126,12 @@ func TestSort(t *testing.T) {
 
 		deck = Sort(NewOrder)(deck)
 
-		got := deck[0].rank
+		got := deck[0].Rank
 		want := Ace
 		if got != want {
 			t.Errorf("got %q expected %q", got, want)
 		}
-		got2 := deck[0].suit
+		got2 := deck[0].Suit
 		want2 := Spades
 		if got2 != want2 {
 			t.Errorf("got %q expected %q", got2, want2)
